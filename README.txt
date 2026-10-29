@@ -5,5 +5,4 @@ Data Pyranometer IESR — cara pakai
 
 Struktur: index.html · css/style.css · js/app.js · js/config.js · js/data.js · images/logo.png
 
-Logo: taruh file logo perusahaan di folder images/ dengan nama logo.png (menggantikan file yang ada). Jika file tidak ada, logo disembunyikan otomatis.
-Font: Raleway (disertakan di folder fonts/, tetap jalan offline).
+
