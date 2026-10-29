@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Pyranometer IESR</title>
+  <link rel="icon" href="images/logo.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="page">
+
+  <!-- ===== Header ===== -->
+  <header class="top">
+    <div class="brand">
+      <img src="images/logo.png" alt="IESR" class="logo" onerror="this.style.display='none'">
+      <h1>Data Pyranometer IESR</h1>
+    </div>
+    <div class="actions">
+    <button type="button" class="btn-ghost" id="upOpen">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Upload Raw Data
+    </button>
+    <div class="export">
+      <button type="button" class="btn-export" id="exportBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="exportMenu">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export CSV
+      </button>
+      <div class="menu" id="exportMenu" role="menu" hidden>
+        <button type="button" role="menuitem" data-export="hourly">Hourly <small>sesuai pilihan periode</small></button>
+        <button type="button" role="menuitem" data-export="daily">Solar Energy · per hari <small>per tanggal, sesuai pilihan periode</small></button>
+        <button type="button" role="menuitem" data-export="monthly">Solar Energy · per bulan <small>total tiap bulan, seluruh periode</small></button>
+        <button type="button" role="menuitem" data-export="matrix">Matrix Pivot <small>sesuai tampilan matrix</small></button>
+        <button type="button" role="menuitem" data-export="all">Semua data <small>per jam, seluruh periode</small></button>
+      </div>
+    </div>
+    </div>
+  </header>
+
+  <!-- ===== Meta + period control ===== -->
+  <section class="meta-row" aria-label="Informasi sensor dan pilihan periode">
+    <dl class="meta">
+      <dt>Nama Sensor</dt><dd id="metaName">Kevin_Toba</dd>
+      <dt>Lokasi Sensor</dt><dd id="metaLoc">–</dd>
+      <dt>Periode</dt><dd id="metaPeriod">2023</dd>
+    </dl>
+    <div class="controls">
+      <div class="seg seg-main" id="segGlobal" role="group" aria-label="Rentang tampilan">
+        <span class="thumb" aria-hidden="true"></span>
+        <button type="button" data-v="annual">Annual</button>
+        <button type="button" data-v="month">Monthly</button>
+      </div>
+      <label class="select" for="selMonth">
+        <span class="sr-only">Pilih bulan</span>
+        <select id="selMonth"></select>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </label>
+    </div>
+  </section>
+
+  <!-- ===== KPI ===== -->
+  <section class="kpis" aria-label="Ringkasan KPI">
+    <article class="kpi"><h2>Average</h2><p class="kpi-val"><span class="num" id="kv-avg">0.00</span><span class="unit" data-unit>kWh/m²/days</span></p><p class="cap" id="kc-avg"></p></article>
+    <article class="kpi"><h2>Minimum</h2><p class="kpi-val"><span class="num" id="kv-min">0.00</span><span class="unit" data-unit>kWh/m²/days</span></p><p class="cap" id="kc-min"></p></article>
+    <article class="kpi"><h2>Maximum</h2><p class="kpi-val"><span class="num" id="kv-max">0.00</span><span class="unit" data-unit>kWh/m²/days</span></p><p class="cap" id="kc-max"></p></article>
+    <article class="kpi"><h2>Sum</h2><p class="kpi-val"><span class="num" id="kv-sum">0.00</span><span class="unit" data-unit>kWh/m²/days</span></p><p class="cap" id="kc-sum"></p></article>
+  </section>
+
+  <!-- ===== Line charts ===== -->
+  <section class="charts">
+    <article class="card">
+      <header class="card-head">
+        <div>
+          <h2>Hourly Pyranometer</h2>
+          <p class="hint">Rata-rata radiasi tiap jam</p>
+        </div>
+        <div class="head-right">
+          <button type="button" class="chip" id="dayChip" hidden aria-label="Hapus pilihan tanggal"><span id="dayChipText"></span><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+          <span class="badge" id="badgeHourly"></span>
+          <button type="button" class="icon-btn" data-export="hourly" title="Unduh CSV Hourly" aria-label="Unduh CSV Hourly"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 4v10m0 0l-4-4m4 4l4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+      </header>
+      <div class="chart" id="chart-hourly"></div>
+    </article>
+
+    <article class="card">
+      <header class="card-head">
+        <div>
+          <h2>Monthly Solar Energy</h2>
+          <p class="hint" id="energyHint"></p>
+        </div>
+        <div class="head-right">
+          <div class="seg seg-dark" id="segTrend" role="group" aria-label="Tren grafik">
+            <span class="thumb" aria-hidden="true"></span>
+            <button type="button" data-v="day">Per Hari</button>
+            <button type="button" data-v="month">Per Bulan</button>
+          </div>
+          <span class="badge" id="badgeEnergy"></span>
+          <button type="button" class="icon-btn" data-export="energy" title="Unduh CSV Solar Energy" aria-label="Unduh CSV Solar Energy"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 4v10m0 0l-4-4m4 4l4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+      </header>
+      <div class="chart" id="chart-energy"></div>
+    </article>
+  </section>
+
+  <!-- ===== Matrix ===== -->
+  <section class="card matrix-card" aria-labelledby="mxTitle">
+    <header class="card-head mx-head">
+      <div>
+        <h2 id="mxTitle" class="mx-title">Matrix Pivot Monthly</h2>
+        <p class="hint" id="mxHint"></p>
+      </div>
+      <div class="head-right">
+        <div class="seg seg-dark" id="segMatrix" role="group" aria-label="Jenis matrix">
+          <span class="thumb" aria-hidden="true"></span>
+          <button type="button" data-v="monthly">Monthly</button>
+          <button type="button" data-v="annual">Annual</button>
+        </div>
+        <label class="select select-sm" for="selMxMonth">
+          <span class="sr-only">Pilih bulan matrix</span>
+          <select id="selMxMonth"></select>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </label>
+        <button type="button" class="icon-btn" data-export="matrix" title="Unduh CSV Matrix" aria-label="Unduh CSV Matrix"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 4v10m0 0l-4-4m4 4l4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </header>
+    <div class="mx-wrap" id="mxWrap"></div>
+    <div class="legend" aria-hidden="true">
+      <span id="legendMin">0.00</span><i class="legend-bar" id="legendBar"></i><span id="legendMax">0.00</span><span class="legend-unit">kWh/m²</span>
+    </div>
+  </section>
+
+  <footer class="foot">Sumber data: <span id="footSrc">Kevin_Toba_2023.xlsx</span> · Nilai per jam adalah jumlah (sum) kWh/m² dari seluruh pembacaan sensor pada jam tersebut.</footer>
+</main>
+
+<!-- ===== Modal: olah raw data ===== -->
+<div class="modal" id="upModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="upTitle">
+    <header class="modal-head">
+      <div>
+        <h2 id="upTitle">Olah Raw Data</h2>
+        <p>Unggah file atau folder raw data (.xlsx), digabung jadi satu, ditransformasi, lalu dianalisis di dashboard.</p>
+      </div>
+      <button type="button" class="icon-btn" id="upClose" aria-label="Tutup"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+    </header>
+    <div class="modal-body">
+      <div class="drop" id="upDrop">
+        <input type="file" id="upInput" accept=".xlsx,.xlsm" multiple hidden>
+        <input type="file" id="upFolder" webkitdirectory multiple hidden>
+        <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <strong>Tarik &amp; lepas file .xlsx atau folder di sini</strong>
+        <span>Folder induk boleh berisi sub-folder per bulan yang masing-masing berisi banyak file .xlsx · kolom yang dibaca: <b>Date</b> dan <b>Pyranometer(W/m2)</b></span>
+        <div class="pick">
+          <button type="button" class="btn-ghost sm" id="upPickFolder">📁 Pilih folder</button>
+          <button type="button" class="btn-ghost sm" id="upPickFiles">Pilih file .xlsx</button>
+        </div>
+      </div>
+      <div class="up-prog" id="upProg" hidden><i id="upBar"></i><span id="upProgTxt"></span></div>
+      <ul class="up-files" id="upFiles"></ul>
+      <p class="up-msg" id="upMsg" hidden></p>
+      <section class="up-result" id="upResult" hidden>
+        <ol class="up-steps">
+          <li><b>Combine Files</b><span id="upS1"></span></li>
+          <li><b>Duplikat Date → Month (nama bulan, mis. January)</b><span id="upS2"></span></li>
+          <li><b>Duplikat Date → Hour (00–23)</b><span id="upS3"></span></li>
+          <li><b>Kolom baru kWh/m2/days</b><span>([Pyranometer(W/m2)] / 1000) × (1 / 60) · Decimal Number</span></li>
+        </ol>
+        <div class="up-stats" id="upStats"></div>
+        <div class="up-tablewrap"><table class="up-table" id="upPreview"></table></div>
+        <label class="up-field"><span>Nama sensor</span><input type="text" id="upName" maxlength="40" placeholder="mis. Kevin_Toba"></label>
+      </section>
+    </div>
+    <footer class="modal-foot">
+      <button type="button" class="btn-link" id="upReset" hidden>Kembalikan data awal</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn-ghost" id="upDownload" disabled>Unduh hasil (.xlsx)</button>
+      <button type="button" class="btn-export" id="upApply" disabled>Terapkan ke Dashboard</button>
+    </footer>
+  </div>
+</div>
+
+<div id="tooltip" role="tooltip" hidden></div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/vendor/xlsx.mini.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/upload.js"></script>
+</body>
+</html>
